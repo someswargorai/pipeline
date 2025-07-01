@@ -9,6 +9,6 @@ export const Button = ({ children,...props }: ButtonInterface) => {
   return (
     <button style={{...props}}>
       {children}
-    </button>
+    </button> 
   );
 };

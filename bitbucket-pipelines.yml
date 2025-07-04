@@ -14,11 +14,11 @@ pipelines:
           deployment: Development
           script:
             
-            - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git checkout development"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git pull"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && sudo make rebuild"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune -a --volumes -f"
+            - ssh -v -o StrictHostKeyChecking=no ec2-user@54.221.166.130 echo "Starting Deployment"
+            - ssh -o StrictHostKeyChecking=no ec2-user@$54.221.166.130 "cd ~/myproject && git checkout development"
+            - ssh -o StrictHostKeyChecking=no ec2-user@$54.221.166.130 "cd ~/myproject && git pull"
+            - ssh -o StrictHostKeyChecking=no ec2-user@$54.221.166.130 "cd ~/myproject && sudo make rebuild"
+            - ssh -o StrictHostKeyChecking=no ec2-user@$54.221.166.130 "docker system prune -a --volumes -f"
             - echo "Deployment finished successfully!"
 
     production:

@@ -1,7 +1,7 @@
 function Page(){
 
   return(
-    <p>Page is hosted.</p>
+    <p>Page is hosted...</p>
   )
 }
 

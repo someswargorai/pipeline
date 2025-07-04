@@ -10,20 +10,24 @@ pipelines:
     development:
       - step:
           name: Dev Development
-          size: 4x
+          size: 2x
           deployment: Development
-          script:
+           script:
+            - mkdir -p ~/.ssh
+            - echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+            - chmod 600 ~/.ssh/id_rsa
+            - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/getirnow-frontend && git checkout development"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/getirnow-frontend && git pull"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/getirnow-frontend && make rebuild"
+            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git checkout development"
+            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git pull"
+            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && sudo make rebuild"
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune -a --volumes -f"
             - echo "Deployment finished successfully!"
 
     production:
       - step:
           name: Production
-          size: 4x
+          size: 2x
           deployment: Production
           script:
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"

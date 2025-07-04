@@ -13,8 +13,8 @@ pipelines:
           size: 2x
           deployment: Development
           script:
-            - echo $SERVER_USER $SERVER_IP
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"
+            
+            - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git checkout development"
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git pull"
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && sudo make rebuild"

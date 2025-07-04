@@ -13,9 +13,6 @@ pipelines:
           size: 2x
           deployment: Development
           script:
-            - mkdir -p ~/.ssh
-            - echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-            - chmod 600 ~/.ssh/id_rsa
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git checkout development"
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git pull"

@@ -5,27 +5,27 @@ all: build up
 # Build the Docker image
 .PHONY: build
 build:
-	docker compose up -d --build
+	docker-compose up -d --build
 
 # Start the app in detached mode
 .PHONY: up
 up:
-	docker compose up -d
+	docker-compose up -d
 
 # Stop the app
 .PHONY: down
 down:
-	docker compose down
+	docker-compose down
 
 # View logs
 .PHONY: logs
 logs:
-	docker compose logs
+	docker-compose logs
 
 # Clean up (stop and remove containers, networks, and volumes)
 .PHONY: clean
 clean:
-	docker compose down -v --rmi local
+	docker-compose down -v --rmi local
 
 # Rebuild and restart
 .PHONY: rebuild
@@ -34,7 +34,7 @@ rebuild: down build
 # Check container status
 .PHONY: ps
 ps:
-	docker compose ps
+	docker-compose ps
 
 # Help
 .PHONY: help

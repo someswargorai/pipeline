@@ -14,7 +14,7 @@ pipelines:
           deployment: Development
           script:
             - mkdir -p ~/.ssh
-            - echo "$PRIVATE_KEY" > ~/.ssh/key.pem
+            - echo -e "$PRIVATE_KEY" > ~/.ssh/key.pem
             - chmod 600 ~/.ssh/key.pem
             - cat ~/.ssh/key.pem
             - ssh -v -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Dev'"

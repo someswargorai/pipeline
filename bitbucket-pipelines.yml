@@ -13,10 +13,10 @@ pipelines:
           size: 2x
           deployment: Development
           script:
-            - echo "$PRIVATE_KEY" > key.pem
+            - echo -e "$PRIVATE_KEY" > key.pem
             - chmod 600 key.pem
-            - cat key.pem
-            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Dev'"
+            - cat key.pem  # Debug: Verify key file contents
+            - ssh -v -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Dev'"
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "
                 cd ~/myproject &&
                 git checkout development &&
@@ -32,9 +32,10 @@ pipelines:
           size: 2x
           deployment: Production
           script:
-            - echo "$PRIVATE_KEY" > key.pem
+            - echo -e "$PRIVATE_KEY" > key.pem
             - chmod 600 key.pem
-            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Prod'"
+            - cat key.pem  # Debug: Verify key file contents
+            - ssh -v -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Prod'"
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "
                 cd ~/getirnow-frontend &&
                 git checkout production &&

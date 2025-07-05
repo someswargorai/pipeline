@@ -18,13 +18,10 @@ pipelines:
             - chmod 600 ~/.ssh/key.pem
             - cat ~/.ssh/key.pem
             - ssh -v -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Dev'"
-            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "
-                cd ~/myproject &&
-                git checkout development &&
-                git pull &&
-                sudo make rebuild &&
-                docker system prune -a --volumes -f
-              "
+            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && git checkout production"
+            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && git pull"
+            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && make rebuild"
+            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "docker system prune -a --volumes -f"
             - echo "✅ Dev Deployment finished!"
 
     production:

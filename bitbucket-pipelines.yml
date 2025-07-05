@@ -13,7 +13,7 @@ pipelines:
           size: 2x
           deployment: Development
           script:
-            - echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > key.pem
+            - echo "$PRIVATE_KEY" > key.pem
             - chmod 600 key.pem
             - echo "🔐 Key preview:"
             - head -n 5 key.pem

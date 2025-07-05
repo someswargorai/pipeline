@@ -13,6 +13,7 @@ pipelines:
           size: 2x
           deployment: Development
           script:
+            - cat /opt/atlassian/pipelines/agent/ssh/id_rsa
             - ssh -vvv -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/my-project && git checkout development"
             - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/my-project && git pull"

@@ -14,15 +14,18 @@ pipelines:
           deployment: Development
           script:
             - mkdir -p ~/.ssh
-            - echo "$PRIVATE_KEY" > ~/.ssh/key.pem
+            - echo -e "$PRIVATE_KEY" > ~/.ssh/key.pem
             - chmod 600 ~/.ssh/key.pem
-            - cat ~/.ssh/key.pem  # Debug: Verify content
-            - ssh -v -i ~/.ssh/key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "echo 'Connected to Dev'"
-            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/my-project && git checkout development"
-            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/my-project && git pull"
-            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/my-project && make rebuild"
-            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune -a --volumes -f"
-            - echo "Deployment finished successfully!"
+            - cat ~/.ssh/key.pem
+            - ssh -v -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Dev'"
+            - ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "
+                cd ~/myproject &&
+                git checkout development &&
+                git pull &&
+                sudo make rebuild &&
+                docker system prune -a --volumes -f
+              "
+            - echo "✅ Dev Deployment finished!"
 
     production:
       - step:

@@ -18,10 +18,10 @@ pipelines:
             - cat /opt/atlassian/pipelines/agent/ssh/id_rsa > ~/.ssh/temp_id_rsa
             - chmod 600 ~/.ssh/temp_id_rsa
             - ssh -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "echo ✅ Connected!"
-            - ssh -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git checkout development"
-            - ssh -i /opt/atlassian/pipelines/agent/ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git pull"
-            - ssh -i /opt/atlassian/pipelines/agent/ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && sudo make rebuild"
-            - ssh -i /opt/atlassian/pipelines/agent/ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune -a --volumes -f"
+            - ssh -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "cd ~/myproject && git checkout development"
+            - ssh -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no $ubuntu@$SERVER_IP "cd ~/myproject && git pull"
+            - ssh -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no $ubuntu@$SERVER_IP "cd ~/myproject && sudo make rebuild"
+            - ssh -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no $ubuntu@$SERVER_IP "docker system prune -a --volumes -f"
             - echo "Deployment finished successfully!"
 
     production:

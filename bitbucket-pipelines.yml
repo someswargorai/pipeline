@@ -20,8 +20,7 @@ pipelines:
             - ssh -vvv -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "echo ✅ Connected!"
             - ssh -vvv -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "cd ~/myproject && git checkout development"
             - ssh -vvv -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "cd ~/myproject && git pull"
-            - ssh -vvv -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "cd ~/myproject && sudo make rebuild"
-            - ssh -vvv -i ~/.ssh/temp_id_rsa -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "docker system prune -a --volumes -f"
+            
             - echo "Deployment finished successfully!"
 
     production:

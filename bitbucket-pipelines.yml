@@ -15,7 +15,10 @@ pipelines:
           script:
             - echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > key.pem
             - chmod 600 key.pem
-            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Success'"
+            - echo "🔐 Key preview:"
+            - head -n 5 key.pem
+            - echo "⏳ Testing SSH connection with debug output..."
+            - ssh -vvv -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected'"
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Starting Deployment'"
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/myproject && git checkout development"
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/myproject && git pull"

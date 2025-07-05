@@ -13,7 +13,7 @@ pipelines:
           size: 2x
           deployment: Development
           script:
-            - echo "$PRIVATE_KEY" > key.pem
+            - echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > key.pem
             - chmod 600 key.pem
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Success'"
             - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"

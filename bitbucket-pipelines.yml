@@ -31,7 +31,8 @@ pipelines:
           script:
             - echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > key.pem
             - chmod 600 key.pem
-            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Starting Deployment'"
+            - echo "⏳ Testing SSH connection with debug output..."
+            - ssh -vvv -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected'"
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && git checkout production"
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && git pull"
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && make rebuild"

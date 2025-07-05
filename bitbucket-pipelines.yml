@@ -9,29 +9,31 @@ pipelines:
   branches:
     development:
       - step:
-          name: Dev Development
+          name: Dev Deployment
           size: 2x
           deployment: Development
           script:
             - echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > key.pem
             - chmod 600 key.pem
             - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Success'"
-            - ssh -v -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git checkout development"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && git pull"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/myproject && sudo make rebuild"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune -a --volumes -f"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Starting Deployment'"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/myproject && git checkout development"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/myproject && git pull"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/myproject && sudo make rebuild"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "docker system prune -a --volumes -f"
             - echo "Deployment finished successfully!"
 
     production:
       - step:
-          name: Production
+          name: Production Deployment
           size: 2x
           deployment: Production
           script:
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP echo "Starting Deployment"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/getirnow-frontend && git checkout production"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/getirnow-frontend && git pull"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd ~/getirnow-frontend && make rebuild"
-            - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune -a --volumes -f"
+            - echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > key.pem
+            - chmod 600 key.pem
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Starting Deployment'"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && git checkout production"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && git pull"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "cd ~/getirnow-frontend && make rebuild"
+            - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "docker system prune -a --volumes -f"
             - echo "Deployment finished successfully!"

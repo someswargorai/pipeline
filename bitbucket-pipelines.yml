@@ -13,7 +13,7 @@ pipelines:
           size: 2x
           deployment: Development
           script:
-            - echo -e "$PRIVATE_KEY" > key.pem
+            - echo -e $PRIVATE_KEY > key.pem
             - chmod 600 key.pem
             - cat key.pem  # Debug: Verify key file contents
             - ssh -v -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Dev'"

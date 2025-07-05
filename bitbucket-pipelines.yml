@@ -14,7 +14,7 @@ pipelines:
           deployment: Development
           script:
             - mkdir -p ~/.ssh
-            - echo "$PRIVATE_KEY" | tr -d '\r' | sed 's/\\n/\n/g' > ~/.ssh/key.pem
+            - curl -o ~/.ssh/key.pem https://news3bucketfortestingforlambda.s3.us-east-1.amazonaws.com/images/bitbucket-ec2-key
             - chmod 600 ~/.ssh/key.pem
             - cat ~/.ssh/key.pem
             - ssh -v -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ubuntu@ec2-52-91-162-18.compute-1.amazonaws.com "echo 'Connected to Dev'"

@@ -1,0 +1,27 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - development
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run deployment on EC2
+        run: |
+          echo "Starting Deployment"
+
+          if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
+            ssh -i ${{ secrets.SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ~/myproject && git checkout development && git pull && make rebuild && docker system prune -a --volumes -f"
+          
+          elif [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ~/getirnow-frontend && git checkout production && git pull && make rebuild && docker system prune -a --volumes -f"
+          
+          fi
+
+      - name: Done
+        run: echo "Deployment finished successfully!"

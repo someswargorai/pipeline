@@ -15,7 +15,44 @@ pipelines:
           script:
             - echo "Setting up SSH"
             - mkdir -p ~/.ssh
-            - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+            - echo -----BEGIN OPENSSH PRIVATE KEY-----
+              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
+              HuaXOKQBDLMrUAAAAKc29tZ29AQXB1bgE=
+              -----END OPENSSH PRIVATE KEY-----> ~/.ssh/id_rsa
             - chmod 600 ~/.ssh/id_rsa
             - echo $SSH_PRIVATE_KEY
             - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts

@@ -20,7 +20,7 @@ jobs:
 
       - name: Run deployment on EC2
         run: |
-          echo "Starting Deployment"
+          echo "Starting Deployment1"
 
           if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
             ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ~/myproject && git checkout development && git pull && docker system prune -a --volumes -f && make rebuild && docker system prune -a --volumes -f"

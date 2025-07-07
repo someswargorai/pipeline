@@ -6,6 +6,7 @@ all: build up
 .PHONY: build
 build:
 	docker compose up -d --build
+	
 
 # Start the app in detached mode
 .PHONY: up
@@ -25,11 +26,13 @@ logs:
 # Clean up (stop and remove containers, networks, and volumes)
 .PHONY: clean
 clean:
-	docker compose down -v --rmi local
+	docker image prune -a -f
+	docker container prune -f
+	docker volume prune -f
 
 # Rebuild and restart
 .PHONY: rebuild
-rebuild: down build
+rebuild: build
 
 # Check container status
 .PHONY: ps

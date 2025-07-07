@@ -2,7 +2,7 @@ function Page() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>Deployment Successful 🚀</h1>
+        <h1 style={styles.title}>Deployment Successful 🚀🎉</h1>
         <p style={styles.text}>Your page is hosted and running smoothly.</p>
       </div>
     </div>

@@ -5,7 +5,7 @@ all: build up
 # Build the Docker image
 .PHONY: build
 build:
-	docker compose build
+	docker compose up -d --build
 
 # Start the app in detached mode
 .PHONY: up

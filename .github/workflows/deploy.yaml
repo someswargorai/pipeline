@@ -23,7 +23,7 @@ jobs:
           echo "Starting Deployment1"
 
           if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ~/myproject && git checkout development && git pull origin development && docker system prune -a --volumes -f && make rebuild && docker system prune -a --volumes -f"
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ~/myproject && git checkout development && git pull origin development && docker system prune -a --volumes -f && make rebuild"
           
           elif [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
             ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ~/getirnow-frontend && git checkout production && git pull && make rebuild && docker system prune -a --volumes -f"

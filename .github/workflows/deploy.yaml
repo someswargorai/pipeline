@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: EC2 Deployment and Scheduled Cleanup
 
 on:
   push:
@@ -6,8 +6,13 @@ on:
       - development
       - production
 
+  schedule:
+    - cron: '0 0 * * *' # every day at 12 AM
+
 jobs:
+
   deploy:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
@@ -16,19 +21,49 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-        #   ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: Run deployment on EC2
         run: |
           echo "Starting Deployment"
 
           if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ~/myproject && git checkout development && git pull origin development && make rebuild"
-          
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+              cd ~/myproject &&
+              git checkout development &&
+              git pull origin development &&
+              make rebuild
+            "
+
           elif [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ~/getirnow-frontend && git checkout production && git pull && make rebuild && docker system prune -a --volumes -f"
-          
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+              cd ~/getirnow-frontend &&
+              git checkout production &&
+              git pull &&
+              make rebuild
+            "
           fi
 
       - name: Done
-        run: echo "Deployment finished successfully!"
+        run: echo "✅ Deployment finished successfully!"
+
+  cleanup:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH access
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Run safe Docker cleanup on EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+            echo '🧹 Starting Docker cleanup...'
+            docker system df
+            docker container prune -f
+            docker image prune -f
+            docker volume prune -f
+            docker system df
+          "

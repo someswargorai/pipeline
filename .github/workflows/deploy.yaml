@@ -10,12 +10,14 @@ on:
     - cron: '0 0 * * *' # every day at 12 AM
 
 jobs:
-
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Set up SSH access
         run: |
           mkdir -p ~/.ssh
@@ -23,24 +25,34 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
       - name: Run deployment on EC2
+        env:
+          SERVER_IPS: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           echo "Starting Deployment"
 
-          if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-              cd ~/myproject &&
-              git checkout development &&
-              git pull origin development &&
-              make rebuild
-            "
-
-          elif [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-              cd ~/getirnow-frontend &&
-              git checkout production &&
-              git pull &&
-              make rebuild
-            "
+          if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
+            echo "$SERVER_IPS" > ips.json
+            for ip in $(jq -r '.[]' ips.json); do
+              echo "Deploying to $ip (development)..."
+              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
+                cd ~/myproject &&
+                git checkout development &&
+                git pull origin development &&
+                make rebuild
+              "
+            done
+          elif [[ "${GITHUB_REF}" == "refs/heads/production" ]]; then
+            echo "$SERVER_IPS" > ips.json
+            for ip in $(jq -r '.[]' ips.json); do
+              echo "Deploying to $ip (production)..."
+              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
+                cd ~/getirnow-frontend &&
+                git checkout production &&
+                git pull &&
+                make rebuild
+              "
+            done
           fi
 
       - name: Done
@@ -51,6 +63,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Set up SSH access
         run: |
           mkdir -p ~/.ssh
@@ -58,12 +73,18 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
       - name: Run safe Docker cleanup on EC2
+        env:
+          SERVER_IPS: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-            echo '🧹 Starting Docker cleanup...'
-            docker system df
-            docker container prune -f
-            docker image prune -f
-            docker volume prune -f
-            docker system df
-          "
+          echo "$SERVER_IPS" > ips.json
+          for ip in $(jq -r '.[]' ips.json); do
+            echo "🧹 Running cleanup on $ip"
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
+              docker system df &&
+              docker container prune -f &&
+              docker image prune -f &&
+              docker volume prune -f &&
+              docker system df
+            "
+          done

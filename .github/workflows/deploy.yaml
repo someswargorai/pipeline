@@ -24,39 +24,57 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Run deployment on EC2
+      - name: Run deployment on EC2 with rollback
         env:
           SERVER_IPS: ${{ secrets.SERVER_IP }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           echo "Starting Deployment"
+          echo "$SERVER_IPS" > ips.json
 
-          if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
-            echo "$SERVER_IPS" > ips.json
-            for ip in $(jq -r '.[]' ips.json); do
-              echo "Deploying to $ip (development)..."
-              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
-                cd ~/myproject &&
-                git checkout development &&
-                git pull origin development &&
-                make rebuild
-              "
-            done
-          elif [[ "${GITHUB_REF}" == "refs/heads/production" ]]; then
-            echo "$SERVER_IPS" > ips.json
-            for ip in $(jq -r '.[]' ips.json); do
-              echo "Deploying to $ip (production)..."
-              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
-                cd ~/getirnow-frontend &&
-                git checkout production &&
-                git pull &&
-                make rebuild
-              "
-            done
-          fi
+          for ip in $(jq -r '.[]' ips.json); do
+            echo "Deploying to $ip..."
 
-      - name: Done
-        run: echo "✅ Deployment finished successfully!"
+            if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
+              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
+                set -e
+                cd ~/myproject
+                PREV_COMMIT=\$(git rev-parse HEAD)
+                git checkout development
+                git pull origin development
+                make rebuild
+
+                echo '🩺 Running health check...'
+                if curl -sSf http://localhost:3000/; then
+                  echo '✅ Health check passed.'
+                else
+                  echo '❌ Health check failed! Rolling back...'
+                  git reset --hard \$PREV_COMMIT
+                  make rebuild
+                fi
+              "
+            elif [[ "${GITHUB_REF}" == "refs/heads/production" ]]; then
+              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
+                set -e
+                cd ~/myproject
+                PREV_COMMIT=\$(git rev-parse HEAD)
+                git checkout production
+                git pull origin production
+                make rebuild
+
+                echo '🩺 Running health check...'
+                if curl -sSf http://localhost:3000/ then
+                  echo '✅ Health check passed.'
+                else
+                  echo '❌ Health check failed! Rolling back...'
+                  git reset --hard \$PREV_COMMIT
+                  make rebuild
+                fi
+              "
+            fi
+
+          - name: Done
+            run: echo "✅ Deployment finished successfully!"
 
   cleanup:
     if: github.event_name == 'schedule'

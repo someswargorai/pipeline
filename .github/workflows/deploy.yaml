@@ -24,66 +24,36 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Run deployment on EC2 with rollback
+      - name: Run deployment on EC2
         env:
           SERVER_IPS: ${{ secrets.SERVER_IP }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           echo "Starting Deployment"
-          echo "$SERVER_IPS" > ips.json
 
-          for ip in $(jq -r '.[]' ips.json); do
-            echo "Deploying to $ip..."
-
-            if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
+            echo "$SERVER_IPS" > ips.json
+            for ip in $(jq -r '.[]' ips.json); do
+              echo "Deploying to $ip (development)..."
               ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
-                set -e
-
-                cd ~/myproject
-                ROLLBACK_COMMIT=\$(cat .last-good-commit || echo '')
-                git checkout development
-                git pull origin development
+                cd ~/myproject &&
+                git checkout development &&
+                git pull origin development &&
                 make rebuild
-                sleep 5
-
-                echo '🩺 Running health check...'
-                STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)
-                echo \"HTTP status: \$STATUS\"
-
-                if [ \"\$STATUS\" = \"200\" ]; then
-                  echo '✅ Health check passed.'
-                  git rev-parse HEAD > .last-good-commit
-                else
-                  echo '❌ Health check failed! Rolling back...'
-                  git reset --hard \$ROLLBACK_COMMIT
-                  make rebuild
-                fi
               "
-            elif [[ "${GITHUB_REF}" == "refs/heads/production" ]]; then
+            done
+          elif [[ "${GITHUB_REF}" == "refs/heads/production" ]]; then
+            echo "$SERVER_IPS" > ips.json
+            for ip in $(jq -r '.[]' ips.json); do
+              echo "Deploying to $ip (production)..."
               ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
-                set -e
-
-                cd ~/myproject
-                ROLLBACK_COMMIT=\$(cat .last-good-commit || echo '')
-                git checkout production
-                git pull origin production
+                cd ~/getirnow-frontend &&
+                git checkout production &&
+                git pull &&
                 make rebuild
-
-                echo '🩺 Running health check...'
-                STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)
-                echo \"HTTP status: \$STATUS\"
-
-                if [ \"\$STATUS\" = \"200\" ]; then
-                  echo '✅ Health check passed.'
-                  git rev-parse HEAD > .last-good-commit
-                else
-                  echo '❌ Health check failed! Rolling back...'
-                  git reset --hard \$ROLLBACK_COMMIT
-                  make rebuild
-                fi
               "
-            fi
-          done
+            done
+          fi
 
       - name: Done
         run: echo "✅ Deployment finished successfully!"

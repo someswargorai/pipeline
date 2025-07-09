@@ -3,7 +3,7 @@ function Page() {
     <div style={styles.container}>
       <div style={styles.card}>
         <h1 style={styles.title}>Deployment Successful with zero downtime by github actions.🚀🎉</h1>
-        <p style={styles.text}>Your page is hosted and running smoothly updated
+        <p style={styles.text}>Your page is hosted and running smoothly updated....</p>
       </div>
     </div>
   );

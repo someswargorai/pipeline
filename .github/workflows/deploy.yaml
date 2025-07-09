@@ -38,6 +38,7 @@ jobs:
             if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
               ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip '
                 set -e
+                
                 cd ~/myproject
                 ROLLBACK_COMMIT=$(cat .last-good-commit)
                 git checkout development
@@ -57,8 +58,9 @@ jobs:
             elif [[ "${GITHUB_REF}" == "refs/heads/production" ]]; then
               ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip '
                 set -e
+                
                 cd ~/myproject
-                PREV_COMMIT=$(git rev-parse HEAD)
+                ROLLBACK_COMMIT=$(cat .last-good-commit)
                 git checkout production
                 git pull origin production
                 make rebuild
@@ -68,7 +70,7 @@ jobs:
                   echo "✅ Health check passed."
                 else
                   echo "❌ Health check failed! Rolling back..."
-                  git reset --hard $PREV_COMMIT
+                  git reset --hard $ROLLBACK_COMMIT
                   make rebuild
                 fi
               '

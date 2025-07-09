@@ -45,10 +45,10 @@ jobs:
                 git pull origin development
                 make rebuild
 
-                echo "🩺 Running health check..."
-                if curl -sSf http://localhost:3000/; then
+                echo "🩺 Running health checking..."
+                echo $(curl -s -o /dev/null -w '%{http_code}' http://$ip/)
+                if [ "$(curl -s -o /dev/null -w '%{http_code}' http://$ip/)" == 200 ]; then
                   echo "✅ Health check passed."
-                  git rev-parse HEAD > .last-good-commit
                 else
                   echo "❌ Health check failed! Rolling back..."
                   git reset --hard $ROLLBACK_COMMIT

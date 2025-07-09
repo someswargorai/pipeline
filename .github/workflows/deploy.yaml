@@ -36,41 +36,42 @@ jobs:
             echo "Deploying to $ip..."
 
             if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
-              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
+              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip '
                 set -e
                 cd ~/myproject
-                PREV_COMMIT=\$(git rev-parse HEAD)
+                ROLLBACK_COMMIT=$(cat .last-good-commit)
                 git checkout development
                 git pull origin development
                 make rebuild
 
-                echo '🩺 Running health check...'
+                echo "🩺 Running health check..."
                 if curl -sSf http://localhost:3000/; then
-                  echo '✅ Health check passed.'
+                  echo "✅ Health check passed."
+                  git rev-parse HEAD > .last-good-commit
                 else
-                  echo '❌ Health check failed! Rolling back...'
-                  git reset --hard \$PREV_COMMIT
+                  echo "❌ Health check failed! Rolling back..."
+                  git reset --hard $ROLLBACK_COMMIT
                   make rebuild
                 fi
-              "
+              '
             elif [[ "${GITHUB_REF}" == "refs/heads/production" ]]; then
-              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
+              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip '
                 set -e
                 cd ~/myproject
-                PREV_COMMIT=\$(git rev-parse HEAD)
+                PREV_COMMIT=$(git rev-parse HEAD)
                 git checkout production
                 git pull origin production
                 make rebuild
 
-                echo '🩺 Running health check...'
+                echo "🩺 Running health check..."
                 if curl -sSf http://localhost:3000/; then
-                  echo '✅ Health check passed.'
+                  echo "✅ Health check passed."
                 else
-                  echo '❌ Health check failed! Rolling back...'
-                  git reset --hard \$PREV_COMMIT
+                  echo "❌ Health check failed! Rolling back..."
+                  git reset --hard $PREV_COMMIT
                   make rebuild
                 fi
-              "
+              '
             fi
           done
 
@@ -99,11 +100,11 @@ jobs:
           echo "$SERVER_IPS" > ips.json
           for ip in $(jq -r '.[]' ips.json); do
             echo "🧹 Running cleanup on $ip"
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip '
               docker system df &&
               docker container prune -f &&
               docker image prune -f &&
               docker volume prune -f &&
               docker system df
-            "
+            '
           done

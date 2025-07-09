@@ -47,7 +47,7 @@ jobs:
 
                 echo "🩺 Running health checking..."
                 echo $ip
-                echo $(curl -s -o /dev/null -w '%{http_code}' http://$ip/)
+                echo $(curl -s -o /dev/null -w '%{http_code}' http://52.3.130.186/)
                 if [ "$(curl -s -o /dev/null -w '%{http_code}' http://52.3.130.186/)" == 200 ]; then
                   echo "✅ Health check passed."
                 else

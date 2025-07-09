@@ -63,7 +63,7 @@ jobs:
                 make rebuild
 
                 echo '🩺 Running health check...'
-                if curl -sSf http://localhost:3000/ then
+                if curl -sSf http://localhost:3000/; then
                   echo '✅ Health check passed.'
                 else
                   echo '❌ Health check failed! Rolling back...'
@@ -72,9 +72,10 @@ jobs:
                 fi
               "
             fi
+          done
 
-          - name: Done
-            run: echo "✅ Deployment finished successfully!"
+      - name: Done
+        run: echo "✅ Deployment finished successfully!"
 
   cleanup:
     if: github.event_name == 'schedule'

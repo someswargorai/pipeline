@@ -36,46 +36,51 @@ jobs:
             echo "Deploying to $ip..."
 
             if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
-              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip '
+              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
                 set -e
-                
+
                 cd ~/myproject
-                ROLLBACK_COMMIT=$(cat .last-good-commit)
+                ROLLBACK_COMMIT=\$(cat .last-good-commit || echo '')
                 git checkout development
                 git pull origin development
                 make rebuild
 
-                echo "🩺 Running health checking..."
-                echo $ip
-                echo $(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)
-                if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)" == 200 ]; then
-                  echo "✅ Health check passed."
+                echo '🩺 Running health check...'
+                STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)
+                echo \"HTTP status: \$STATUS\"
+
+                if [ \"\$STATUS\" = \"200\" ]; then
+                  echo '✅ Health check passed.'
+                  git rev-parse HEAD > .last-good-commit
                 else
-                  echo "❌ Health check failed! Rolling back..."
-                  git reset --hard $ROLLBACK_COMMIT
+                  echo '❌ Health check failed! Rolling back...'
+                  git reset --hard \$ROLLBACK_COMMIT
                   make rebuild
                 fi
-              '
+              "
             elif [[ "${GITHUB_REF}" == "refs/heads/production" ]]; then
-              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip '
+              ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
                 set -e
-                
+
                 cd ~/myproject
-                ROLLBACK_COMMIT=$(cat .last-good-commit)
+                ROLLBACK_COMMIT=\$(cat .last-good-commit || echo '')
                 git checkout production
                 git pull origin production
                 make rebuild
 
-                echo "🩺 Running health checking..."
-                echo $(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)
-                if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)" == 200 ]; then
-                  echo "✅ Health check passed."
+                echo '🩺 Running health check...'
+                STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)
+                echo \"HTTP status: \$STATUS\"
+
+                if [ \"\$STATUS\" = \"200\" ]; then
+                  echo '✅ Health check passed.'
+                  git rev-parse HEAD > .last-good-commit
                 else
-                  echo "❌ Health check failed! Rolling back..."
-                  git reset --hard $ROLLBACK_COMMIT
+                  echo '❌ Health check failed! Rolling back...'
+                  git reset --hard \$ROLLBACK_COMMIT
                   make rebuild
                 fi
-              '
+              "
             fi
           done
 
@@ -104,11 +109,11 @@ jobs:
           echo "$SERVER_IPS" > ips.json
           for ip in $(jq -r '.[]' ips.json); do
             echo "🧹 Running cleanup on $ip"
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip '
+            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$ip "
               docker system df &&
               docker container prune -f &&
               docker image prune -f &&
               docker volume prune -f &&
               docker system df
-            '
+            "
           done
